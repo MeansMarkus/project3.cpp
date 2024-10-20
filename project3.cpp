@@ -46,6 +46,10 @@ public:
             rear = newNode;
         }
         size++;
+        cout << "Enqueued Job:" << endl;
+        job->printJob();
+        cout << "Jobs after enqueue:" << endl;
+        display();
     }
 
     DT dequeue() {
@@ -67,6 +71,10 @@ public:
                 temp->JobPointer->job_type = new_job_type;
                 temp->JobPointer->cpu_time_consumed = new_cpu_time;
                 temp->JobPointer->memory_consumed = new_memory;
+                cout << "Modified Job ID " << job_id << ":" << endl;
+                temp->JobPointer->printJob();
+                cout << "Jobs after modification:" << endl;
+                display();
                 return;
             }
             temp = temp->next;
@@ -83,6 +91,10 @@ public:
                     case 3: temp->JobPointer->cpu_time_consumed = new_value; break;
                     case 4: temp->JobPointer->memory_consumed = new_value; break;
                 }
+                cout << "Changed Job ID " << job_id << " field " << field_index << " to " << new_value << ":" << endl;
+                temp->JobPointer->printJob();
+                cout << "Jobs after changing field:" << endl;
+                display();
                 return;
             }
             temp = temp->next;
@@ -94,7 +106,11 @@ public:
         while (temp != nullptr) {
             if (temp->JobPointer->job_id == job_id) {
                 temp->JobPointer->priority += positions;
-                return;
+                cout << "Promoted Job ID " << job_id << " by " << positions << " Position(s):" << endl;
+                temp->JobPointer->printJob();
+                cout << "Jobs after promotion:" << endl;
+                display();
+                                return;
             }
             temp = temp->next;
         }
@@ -211,20 +227,22 @@ int main() {
             case 'O': { // Reorder
                 cin >> attribute_index;
                 NovelQueue<CPUJob*>* reorderedQueue = myNovelQueue->reorder(attribute_index);
-                cout << "Reordered Queue:" << endl;
+                cout << "Reordered Queue by attribute " << attribute_index << ":" << endl;
                 reorderedQueue->display();
                 delete reorderedQueue;
                 break;
             }
             case 'D': { // Display
+                cout << "Displaying all jobs in the queue:" << endl;
                 myNovelQueue->display();
-                break;
+                                break;
             }
             case 'N': { // Count
                 cout << "Number of elements in the queue: " << myNovelQueue->count() << endl;
                 break;
             }
             case 'L': { // List Jobs
+                cout << "List of jobs sorted by job IDs:" << endl;
                 myNovelQueue->listJobs();
                 break;
             }
