@@ -52,16 +52,20 @@ public:
         display();
     }
 
-    DT dequeue() {
-        if (front == nullptr) return nullptr;
-        Queue<DT>* temp = front;
-        front = front->next;
-        if (front == nullptr) rear = nullptr;
-        DT job = temp->JobPointer;
-        delete temp;
-        size--;
-        return job;
+  
+       DT dequeue() {
+    if (front == nullptr) {
+        cout << "Queue is empty!" << endl;
+        return nullptr;
+
     }
+    Queue<DT>* temp = front;
+    front = front->next;
+    DT job = temp->JobPointer;
+    delete temp;
+    size--;
+    return job;
+}
 
     void modify(int job_id, int new_priority, int new_job_type, int new_cpu_time, int new_memory) {
         Queue<DT>* temp = front;
@@ -101,20 +105,51 @@ public:
         }
     }
 
-    void promote(int job_id, int positions) {
-        Queue<DT>* temp = front;
-        while (temp != nullptr) {
-            if (temp->JobPointer->job_id == job_id) {
-                temp->JobPointer->priority += positions;
-                cout << "Promoted Job ID " << job_id << " by " << positions << " Position(s):" << endl;
-                temp->JobPointer->printJob();
-                cout << "Jobs after promotion:" << endl;
-                display();
-                                return;
-            }
-            temp = temp->next;
-        }
+    
+void promote(int job_id, int positions) {
+    if (front == nullptr || size <= 1) {
+        cout << "Queue is too small to promote." << endl;
+        return;
     }
+
+    Queue<DT>* current = front;
+    Queue<DT>* prev = nullptr;
+
+    // Find the job with the specified job_id
+    while (current != nullptr) {
+        if (current->JobPointer->job_id == job_id) {
+            // If it's already at the front, no need to promote
+            if (prev == nullptr) {
+                cout << "Job ID " << job_id << " is already at the front." << endl;
+                return;
+            }
+
+            // Disconnect the job from the current position
+            if (prev != nullptr) {
+                prev->next = current->next;
+            }
+            if (current->next == nullptr) {
+                rear = prev; // Update rear if we are removing the last job
+            }
+
+            // Move the job to the front
+            current->next = front; // Point it to the current front
+            front = current; // Update the front to this job
+            cout << "Promoted Job ID " << job_id << " by  " << positions << " positions." << endl;
+
+
+            // Display the promoted job
+            front->JobPointer->printJob();
+            cout << "Jobs after promotion:" << endl;
+            display();
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+    cout << "Job ID " << job_id << " not found." << endl;
+}
+
 
     NovelQueue<DT>* reorder(int attr) {
         NovelQueue<DT>* reorderedQueue = new NovelQueue<DT>();
@@ -199,15 +234,17 @@ int main() {
                 myNovelQueue->enqueue(newJob);
                 break;
             }
-            case 'R': { // Remove (Dequeue)
-                CPUJob* removedJob = myNovelQueue->dequeue();
-                if (removedJob) {
-                    cout << "Dequeued Job: ";
-                    removedJob->printJob();
-                    delete removedJob; // Clean up memory after use
-                }
-                break;
-            }
+            case 'R': { //dequeue
+    CPUJob* removedJob = myNovelQueue->dequeue();  // Fix the call to dequeue
+    if (removedJob) {
+        cout << "Dequeued Job:" << endl;
+        removedJob->printJob(); // Change from removedJob->display() to removedJob->printJob()
+        cout << "Jobs after dequeue:" << endl;
+        myNovelQueue->display();
+        delete removedJob; // Clean up memory after use
+    }
+    break;
+}
             case 'M': { // Modify
                 cin >> job_id >> new_priority >> new_job_type;
                 cin >> new_cpu_time_consumed >> new_memory_consumed;
@@ -235,7 +272,7 @@ int main() {
             case 'D': { // Display
                 cout << "Displaying all jobs in the queue:" << endl;
                 myNovelQueue->display();
-                                break;
+                break;
             }
             case 'N': { // Count
                 cout << "Number of elements in the queue: " << myNovelQueue->count() << endl;
